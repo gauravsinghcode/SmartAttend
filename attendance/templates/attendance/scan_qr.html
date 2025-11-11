@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen flex items-start justify-center p-6 bg-gradient-to-br from-white via-gray-50 to-gray-100">
+  <div class="max-w-xl w-full bg-white border rounded-2xl p-6 shadow">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">Scan Attendance QR</h2>
+    <p class="text-sm text-gray-500 mb-4">Allow camera access and point it at the QR shown by your teacher.</p>
+
+    <!-- scanner area -->
+    <div id="reader" class="w-full mb-4"></div>
+
+    <!-- fallback manual token input -->
+    <div class="mb-4">
+      <label class="text-sm text-gray-600">Or paste code / link</label>
+      <div class="flex gap-2 mt-2">
+        <input id="manualToken" class="flex-1 p-2 border rounded" placeholder="Paste token or URL here" />
+        <button id="manualSubmit" class="px-4 py-2 bg-emerald-600 text-white rounded">Submit</button>
+      </div>
+    </div>
+
+    <div id="statusMsg" class="text-sm text-gray-700 mt-2"></div>
+
+    <p class="text-xs text-gray-400 mt-4">If camera access is blocked, enable camera permissions in your browser settings.</p>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+<script>
+  // CSRF helper
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  const status = document.getElementById('statusMsg');
+
+  // Callback when a QR code is scanned successfully
+  function onScanSuccess(decodedText, decodedResult) {
+    // stop the scanner briefly to avoid duplicate reads
+    html5QrcodeScanner.clear().then(() => {
+      // send token to backend
+      postToken(decodedText);
+    }).catch(err => {
+      console.error('Failed to clear scanner:', err);
+    });
+  }
+
+  function onScanError(errorMessage) {
+    // optional: console.log(errorMessage);
+  }
+
+  // Initialize scanner
+  const html5QrcodeScanner = new Html5Qrcode("reader");
+  const config = { fps: 10, qrbox: { width: 300, height: 300 } };
+
+  Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) {
+      // prefer back camera on mobile
+      const cameraId = cameras.find(cam => /back|rear|environment|wide/gi.test(cam.label))?.id || cameras[0].id;
+      html5QrcodeScanner.start(
+        cameraId,
+        config,
+        onScanSuccess,
+        onScanError
+      ).catch(err => {
+        status.textContent = 'Unable to start camera: ' + err;
+      });
+    } else {
+      status.textContent = 'No camera found on this device.';
+    }
+  }).catch(err => {
+    status.textContent = 'Camera permission denied or not available.';
+  });
+
+  // POST token helper
+  function postToken(token) {
+    status.textContent = 'Submitting...';
+    const data = new FormData();
+    data.append('token', token);
+
+    fetch("{% url 'attendance:mark_attendance_ajax' %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      body: data,
+      credentials: 'include'
+    }).then(r => r.json())
+      .then(j => {
+        status.textContent = j.msg || (j.ok ? 'Success' : 'Failed');
+        // optional: redirect or show success UI
+        if (j.ok) {
+          setTimeout(() => {
+            window.location.href = "{% url 'attendance:dashboard' %}";
+          }, 900);
+        } else {
+          // restart scanner so student can try again
+          Html5Qrcode.getCameras().then(cameras => {
+            const cameraId = cameras[0].id;
+            html5QrcodeScanner.start(cameraId, config, onScanSuccess, onScanError);
+          });
+        }
+      }).catch(err => {
+        status.textContent = 'Network error';
+        console.error(err);
+      });
+  }
+
+  // Manual submit fallback
+  document.getElementById('manualSubmit').addEventListener('click', () => {
+    const token = document.getElementById('manualToken').value.trim();
+    if (!token) { status.textContent = 'Please paste a token or URL'; return; }
+    // stop scanner to avoid conflicts
+    html5QrcodeScanner.clear().finally(() => {
+      postToken(token);
+    });
+  });
+
+  // stop camera when leaving page
+  window.addEventListener('beforeunload', () => {
+    html5QrcodeScanner.clear().catch(()=>{});
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+
+{% extends 'attendance/base.html' %}
+{% load static %}
+
+{% block bodyblock %}
+
+<section class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#f9f9ff] to-[#edeaff]">
+  <div class="container mx-auto flex px-5 py-24 items-center justify-center flex-col">
+    <div class="text-center lg:w-2/3 w-full">
+      <h1 class="title-font text-7xl text-72 mb-10 font-medium text-indigo-900 font-[Nunito]">Automated Attendance Made Simple</h1>
+      <p class="mb-20 leading-relaxed font-[Inter] text-[#4b5563]">A next-gen attendance system that recognizes you — not your roll number.</p>
+      <div class="flex justify-center">
+        <a href="{% url 'login' %}"><button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 focus:outline-none hover:bg-[#251f6d] rounded text-lg">Access Dashboard</button></a>
+        <a href="{% url 'signup_student' %}"><button class="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-[#312c85] hover:bg-gray-200 rounded text-lg outline-2 outline-[#312c85]">Get Started Free</button></a>
+      </div>
+    </div>
+    <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent"></div>
+    <img class="lg:w-3/6 md:w-3/6 w-5/6 mb-10 object-cover object-center rounded mt-30" alt="hero" src="{% static 'hero.svg' %}">
+  </div>
+</section>
+
+<section class="text-gray-600 body-font pt-10" id="features">
+  <h1 class="text-4xl font-medium title-font text-center text-indigo-900 mb-20 font-[Nunito]">Built Smarter, So You Don’t Have To</h1>
+  <div class="container px-5 py-24 mx-auto flex flex-wrap">
+    <div class="flex flex-col flex-wrap lg:py-6 -mb-10 lg:w-1/2 lg:pl-12 lg:text-left text-center mr-5">
+      {% for key, value in features.items %}
+        <div class="collapse collapse-plus bg-base-100 border border-base-300 mb-3">
+          <input type="radio" name="my-accordion-3" />
+          <div class="collapse-title font-semibold">{{ key }}</div>
+          <div class="collapse-content text-sm font-[Inter]">{{ value }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="lg:w-1/3 w-full lg:mb-0 rounded-lg overflow-hidden ml-20">
+      <div class="carousel w-full">
+        <img src="{% static 'features.svg' %}" alt="">
+    </div>
+  </div>
+</section>
+
+<section class="text-gray-600 body-font relative min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#f9f9ff] to-[#edeaff]">
+  <div class="container px-5 py-24 mx-auto flex flex-wrap">
+    <div class="flex flex-col text-center w-full mb-20">
+        <h1 class="sm:text-4xl text-3xl font-medium title-font mb-2 text-indigo-900 font-[Nunito]">How SmartAttend Does the Smart Work</h1>
+        <p class="lg:w-2/3 mx-auto leading-relaxed text-base font-[Inter]">Behind every instant attendance mark is a seamless blend of location intelligence, secure verification, and real-time analytics..</p>
+    </div>
+    <div class="flex flex-wrap w-full">
+      <div class="lg:w-2/5 md:w-1/2 md:pr-10 md:py-6">
+        {% for key, value in steps.items %}
+          <div class="flex relative pb-12">
+            <div class="h-full w-10 absolute inset-0 flex items-center justify-center">
+              <div class="h-full w-1 bg-gray-200 pointer-events-none"></div>
+            </div>
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-[#5c4dff] inline-flex items-center justify-center text-white relative z-10 mt-10">
+              <p>{{ key }}</p>
+            </div>
+            <div class="flex-grow pl-4 mt-10">
+              <h2 class="font-medium title-font text-sm text-gray-900 mb-1 tracking-wider font-[Inter]">{{ value.0 }}</h2>
+              <p class="leading-relaxed font-[Inter]">{{ value.1 }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <img class="lg:w-2/5 md:w-1/2 object-cover object-center rounded-lg md:mt-0 ml-20" src="{% static 'steps.svg' %}" alt="step">
+    </div>
+  </div>
+  <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent"></div>
+</section>
+
+<section class="bg-gray-900 text-white body-font">
+  <div class="container mx-auto flex px-5 py-16 items-center justify-center flex-col text-center">
+    <h1 class="title-font sm:text-4xl text-3xl mb-4 font-bold font-[Nunito]">
+      Ready to Make Attendance Effortless?
+    </h1>
+    <p class="mb-8 leading-relaxed text-gray-300 max-w-xl mx-auto font-[Inter]">
+      Join hundreds of students and educators switching to smarter, location-based attendance — secure, fast, and fully automated.
+    </p>
+    <div class="flex justify-center">
+      <a href="#" 
+         class="inline-flex text-white bg-indigo-600 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-700 rounded-lg text-lg font-medium shadow-md transition">
+         Get Started Now
+      </a>
+      <a href="#features" 
+         class="ml-4 inline-flex text-indigo-600 bg-white border-0 py-2 px-6 focus:outline-none hover:bg-gray-100 rounded-lg text-lg font-medium shadow-md transition">
+         Explore the Dashboard
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="bg-gray-900 text-gray-300 font-[Nunito]">
+  <div class="max-w-7xl mx-auto px-6 py-14">
+      <div class="text-center md:text-left md:flex md:items-start md:justify-between gap-10">
+        <div class="max-w-xl">
+            <h2 class="text-white text-2xl md:text-3xl font-bold">
+            SmartAttend — where precision meets simplicity.
+            </h2>
+            <p class="mt-3 text-gray-400">
+            SmartAttend automates attendance with technology that’s reliable, secure, and built for modern institutions.
+            </p>
+        </div>
+
+        <div class="mt-8 md:mt-0">
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Community</p>
+            <div class="mt-3 flex items-center gap-4">
+            <a href="https://github.com/" class="hover:text-white" aria-label="GitHub">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 .5A11.5 11.5 0 0 0 .5 12.3c0 5.2 3.4 9.6 8.1 11.2.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.5-1.3-1.1-1.7-1.1-1.7-.9-.6.1-.6.1-.6 1 .1 1.6 1 1.6 1 .9 1.6 2.5 1.1 3.1.9.1-.7.4-1.1.7-1.4-2.6-.3-5.3-1.3-5.3-5.9 0-1.3.5-2.5 1.2-3.4-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.4 1.3a11.6 11.6 0 0 1 6.1 0c2.3-1.6 3.4-1.3 3.4-1.3.6 1.7.2 3 .1 3.3.8.9 1.2 2 1.2 3.4 0 4.6-2.7 5.6-5.3 5.9.4.3.8 1 .8 2v3c0 .3.2.7.8.6 4.7-1.6 8.1-6 8.1-11.2A11.5 11.5 0 0 0 12 .5Z"/>
+                </svg>
+            </a>
+            <a href="https://x.com/" class="hover:text-white" aria-label="Twitter/X">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 3h4.6l5.1 6.8L18.8 3H21l-7.3 9.7L21.5 21h-4.6l-5.5-7.3L9 16.7 5.2 21H3l7.9-10.5L3 3Z"/>
+                </svg>
+            </a>
+            <a href="https://linkedin.com/" class="hover:text-white" aria-label="LinkedIn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4.98 3.5a2.5 2.5 0 1 1 0 4.99 2.5 2.5 0 0 1 0-4.99ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-.9 1.9-1.9 3.9-1.9 4.1 0 4.9 2.6 4.9 6v6.2h-4V16c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1V21H10V9Z"/>
+                </svg>
+            </a>
+            </div>
+        </div>
+      </div>
+
+      <div class="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 font-[Nunito]">
+        <div>
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Product</h3>
+            <ul class="mt-4 space-y-2">
+            <li><a href="/" class="hover:text-white">Home</a></li>
+            <li><a href="/features" class="hover:text-white">Features</a></li>
+            <li><a href="/how-it-works" class="hover:text-white">How It Works</a></li>
+            <li><a href="/faq" class="hover:text-white">FAQ</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Resources</h3>
+            <ul class="mt-4 space-y-2">
+            <li><a href="/docs" class="hover:text-white">Docs</a></li>
+            <li><a href="https://github.com/" class="hover:text-white">GitHub</a></li>
+            <li><a href="/changelog" class="hover:text-white">Changelog</a></li>
+            <li><a href="/contact" class="hover:text-white">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Legal</h3>
+            <ul class="mt-4 space-y-2">
+            <li><a href="/privacy" class="hover:text-white">Privacy Policy</a></li>
+            <li><a href="/terms" class="hover:text-white">Terms of Use</a></li>
+            <li><a href="/security" class="hover:text-white">Responsible Disclosure</a></li>
+            </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2">
+          <span class="inline-block h-8 w-8 rounded-lg bg-indigo-600"></span>
+          <span class="text-white font-semibold text-lg">SmartAttend</span>
+      </a>
+      <p class="text-sm text-gray-500">
+          © 2025 SmartAttend — Forged with trust, powered by the community.
+      </p>
+      <a href="#top" class="text-sm hover:text-white">Back to top ↑</a>
+      </div>
+  </div>
+</footer>
+
+
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'attendance/base.html' %}
+
+{% block bodyblock %}
+
+{% if form.errors %}
+  {% for field in form %}
+      {% for error in field.errors %}
+        <div role="alert" class="alert alert-error alert-soft mt-2 mx-5">
+          <span>{{ error }}</span>
+        </div>
+      {% endfor %}
+  {% endfor %}
+  
+  {% for error in form.non_field_errors %}
+      <div role="alert" class="alert alert-error alert-soft mt-2 mx-5">
+          <span>{{ error }}</span>
+      </div>
+  {% endfor %}
+{% endif %}
+
+<div class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#f9f9ff] to-[#edeaff]">
+  <section class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+
+      <h1 class="text-3xl font-bold text-center text-[#312C85] mb-2 font-[Nunito]">SmartAttend</h1>
+      <p class="text-gray-500 text-center mb-6 font-[Inter]">Get started with automated attendance - built for smarter classrooms.</p>
+
+      <form method="POST" class="space-y-5">
+        {% csrf_token %}
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 font-[Inter]">Name</label>
+          <input id="username" name="username" type="text" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 font-[Inter]">Email</label>
+          <input id="email" name="email" type="email" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div>
+          <label for="roll_number" class="block text-sm font-medium text-gray-700 font-[Inter]">Roll Number</label>
+          <input id="roll_number" name="roll_number" type="text" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div>
+          <label for="department" class="block text-sm font-medium text-gray-700 font-[Inter]">Department</label>
+          <input id="department" name="department" type="text" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div>
+          <label for="password1" class="block text-sm font-medium text-gray-700 font-[Inter]">Master Password</label>
+          <input id="password1" name="password1" type="password" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div>
+          <label for="password2" class="block text-sm font-medium text-gray-700 font-[Inter]">Confirm Password</label>
+          <input id="password2" name="password2" type="password" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <button type="submit"
+          class="w-full py-2 px-4 bg-[#312C85] text-white font-semibold rounded-lg hover:bg-[#251f6d] transition">
+          Create My Account
+        </button>
+      </form>
+
+      <div class="mt-6 text-sm text-center">
+          <a href="{% url 'signup_teacher' %}" class="text-[#312C85] font-medium hover:underline">Signup as Teacher</a>
+      </div>
+
+      <div class="mt-6 text-sm text-center">
+        <p>Already have an account?
+          <a href="{% url 'login' %}" class="text-[#312C85] font-medium hover:underline">Login</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock %}

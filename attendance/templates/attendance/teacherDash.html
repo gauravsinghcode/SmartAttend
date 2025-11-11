@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartAttend | Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+  <!-- Navbar -->
+  <nav class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-green-400">SmartAttend Dashboard</h1>
+    <a href="/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg">Logout</a>
+  </nav>
+
+  <!-- Content -->
+  <main class="p-8">
+    <h2 class="text-3xl font-semibold mb-6">Welcome, Professor!</h2>
+
+    <!-- Stats Section -->
+    <div class="grid md:grid-cols-3 gap-6 mb-10">
+      <div class="bg-gray-800 rounded-xl p-6 text-center">
+        <h3 class="text-gray-400 mb-2">Total Classes</h3>
+        <p class="text-3xl font-bold text-green-400">5</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 text-center">
+        <h3 class="text-gray-400 mb-2">Students Today</h3>
+        <p class="text-3xl font-bold text-green-400">48</p>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-6 text-center">
+        <h3 class="text-gray-400 mb-2">Attendance Rate</h3>
+        <p class="text-3xl font-bold text-green-400">92%</p>
+      </div>
+    </div>
+
+    <!-- Classes Table -->
+    <div class="bg-gray-800 rounded-xl p-6">
+      <h3 class="text-2xl font-bold mb-4">Your Classes</h3>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-gray-700 text-gray-400">
+            <th class="py-3">Class</th>
+            <th>Subject</th>
+            <th>Date</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-700 hover:bg-gray-700/50 transition">
+            <td class="py-3">CSE301</td>
+            <td>Operating Systems</td>
+            <td>2025-11-08</td>
+            <td class="text-green-400">95%</td>
+          </tr>
+          <tr class="border-b border-gray-700 hover:bg-gray-700/50 transition">
+            <td class="py-3">CSE302</td>
+            <td>DBMS</td>
+            <td>2025-11-08</td>
+            <td class="text-green-400">89%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

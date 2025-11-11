@@ -1,0 +1,31 @@
+{% extends "attendance/base.html" %}
+{% block title %}My Attendance | SmartAttend{% endblock %}
+{% block content %}
+
+<h2 class="text-3xl font-semibold mb-6 text-gray-900 dark:text-white">My Attendance</h2>
+
+<div class="rounded-xl p-6 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 transition overflow-x-auto">
+  <table class="w-full text-left border-collapse">
+    <thead>
+      <tr class="border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+        <th class="py-3">Subject</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700/50 transition">
+        <td class="py-3 text-gray-900 dark:text-white">Operating Systems</td>
+        <td class="text-gray-900 dark:text-white">2025-11-08</td>
+        <td class="text-green-600 dark:text-green-400 font-semibold">Present</td>
+      </tr>
+      <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700/50 transition">
+        <td class="py-3 text-gray-900 dark:text-white">DBMS</td>
+        <td class="text-gray-900 dark:text-white">2025-11-07</td>
+        <td class="text-red-600 dark:text-red-400 font-semibold">Absent</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

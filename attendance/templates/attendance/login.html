@@ -1,0 +1,62 @@
+{% extends 'attendance/base.html' %}
+
+{% block bodyblock %}
+
+{% if messages %}
+  {% for message in messages %}
+    <div role="alert" class="alert alert-success alert-soft  mt-2 mx-5">
+      <span>{{ message }}</span>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<div class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-[#f9f9ff] to-[#edeaff]">
+  <section class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+
+      <h1 class="text-3xl font-bold text-center text-[#312C85] mb-2 font-[Nunito]">SmartAttend</h1>
+      <p class="text-gray-500 text-center mb-6 font-[Inter]">Welcome back your smart campus starts here.</p>
+
+      <form method="POST" class="space-y-5">
+        {% csrf_token %}
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input id="email" name="username" type="text" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input id="password" name="password" type="password" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <div class="w-full mt-1 px-4 py-2 rounded-lg">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Role</label>
+              <select name="role" class="w-full px-3 py-2 border border-gray-300 rounded-md mt-1">
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+              </select>
+            </div>
+        </div>
+
+        <button type="submit"
+          class="w-full py-2 px-4 bg-[#312C85] text-white font-semibold rounded-lg hover:bg-[#251f6d] transition">
+          Login Securely
+        </button>
+      </form>
+
+      <div class="mt-6 text-sm text-center">
+        <a href="#" class="text-[#312C85] hover:underline">Forgot your password ?</a>
+        <p class="mt-2">New here?
+          <a href="{% url 'signup_student' %}" class="text-[#312C85] font-medium hover:underline">Sign Up</a>
+        </p>
+      </div>
+    </div>
+    <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent"></div>
+  </section>
+</div>
+
+
+{% endblock %}

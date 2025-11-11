@@ -1,0 +1,54 @@
+{% extends 'main/base.html' %}
+
+{% block bodyblock %}
+
+<div class="min-h-screen">
+  <div class="text-center">
+    <div class="avatar avatar-placeholder">
+      <div class="bg-success text-neutral-content w-40 rounded-full mt-10">
+          <span class="text-7xl">{{ profile.username.0 }}</span>
+      </div>
+    </div>
+
+    <div class="relative flex items-center justify-center mt-10">
+      <div class="bg-white p-8 rounded-2xl w-full max-w-md">
+
+      <h1 class="text-3xl font-bold text-center text-[#312C85] mb-2 font-[Nunito] pr-10 pl-10">{{ request.user }}</h1>
+      <div  class="space-y-5">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 font-[Inter]">Name</label>
+          <input disabled class="text-center mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85] w-full" placeholder="{{ currentUser.username }}" />
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 font-[Inter]">Email</label>
+          <input disabled class="text-center mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85] w-full" placeholder="{{ currentUser.email  }}" />
+        </div>
+
+        <div>
+          <label for="first" class="block text-sm font-medium text-gray-700 font-[Inter]">First Name</label>
+          <input disabled class="text-center mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85] w-full" placeholder="{{ currentUser.email  }}" />
+        </div>
+
+        <div>
+          <label for="password2" class="block text-sm font-medium text-gray-700 font-[Inter]">Confirm Password</label>
+          <input id="password2" name="password2" type="password" required
+            class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#312C85] focus:border-[#312C85]" />
+        </div>
+
+        <button class="w-full py-2 px-4 bg-[#312C85] text-white font-semibold rounded-lg hover:bg-[#251f6d] transition">
+          Change Master Password
+        </button>
+
+        <button class="w-full py-2 px-4 bg-error text-white font-semibold rounded-lg hover:bg-error transition">
+          Delete Vault
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+  </div>
+</div>
+
+
+{% endblock %}

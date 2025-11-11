@@ -1,0 +1,196 @@
+import qrcode
+from io import BytesIO
+import base64
+from django.utils import timezone
+from datetime import timedelta
+from .models import ClassSession, Attendance
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout, authenticate, login
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .forms import StudentSignUpForm, TeacherSignUpForm
+from django.http import JsonResponse
+from django.urls import reverse
+
+
+def home(request):
+
+    return render(request, "attendance/landing.html")
+
+
+def dashboard(request):
+
+    return render(request, "attendance/dashboard.html")
+
+
+def attendance(request):
+    
+    return render(request, "attendance/attendance.html")
+
+
+@login_required
+def scan_qr_page(request):
+    if request.user.role != 'student':
+        return redirect('app-dashboard')
+    return render(request, 'attendance/scan_qr.html', {})
+
+
+@login_required
+def mark_attendance_ajax(request):
+
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'msg': 'POST required'}, status=405)
+
+    if request.user.role != 'student':
+        return JsonResponse({'ok': False, 'msg': 'Only students can mark attendance'}, status=403)
+
+    token = request.POST.get('token') or request.POST.get('data')
+    if not token:
+        return JsonResponse({'ok': False, 'msg': 'No token provided'}, status=400)
+
+    if '/' in token:
+        token = token.rstrip('/').split('/')[-1]
+
+    try:
+        session = ClassSession.objects.get(token=token)
+    except ClassSession.DoesNotExist:
+        return JsonResponse({'ok': False, 'msg': 'Invalid or unknown QR token'}, status=400)
+
+    if not session.is_valid():
+        return JsonResponse({'ok': False, 'msg': 'This session has expired'}, status=400)
+
+    already = Attendance.objects.filter(student=request.user, session=session).exists()
+    if already:
+        return JsonResponse({'ok': False, 'msg': 'You have already marked attendance for this session'}, status=200)
+
+    Attendance.objects.create(student=request.user, session=session, status='Present')
+
+    return JsonResponse({'ok': True, 'msg': 'Attendance marked successfully'})
+
+
+def landing(request):
+
+    features = {
+        "Automatic Presence Detection": '“Seamlessly marks attendance the moment you’re within a 10-meter radius — no manual check-ins or roll calls needed.”',
+        "Verified & Tamper-Proof": '“Built on precise geolocation verification, every record is authentic and tied to the student’s secure identity credentials.”',
+        "Instant Attendance Insights": '“View attendance summaries, daily statistics, and visual reports in real-time — empowering teachers with instant analytics.”',
+        "our Data, Your Control": '“Location data is processed securely and never stored permanently — ensuring complete transparency and privacy for every user.”',
+    }
+
+    steps = {
+        1 : ["Detect", "SmartAttend automatically senses students within a 10-meter range — no manual check-ins needed."],
+        2 : ["Verify", "Instantly confirms identity with secure, device-based authentication."],
+        3 : ["Record", "Attendance is logged and updated in real-time, ready for reports."],
+    }
+
+    return render(request, "attendance/landing.html", {"features": features, "steps": steps})
+
+
+def signup_student(request):
+    if request.method == "POST":
+        form = StudentSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Student account created successfully.")
+            return redirect('login')
+    else:
+        form = StudentSignUpForm()
+    
+    return render(request, "attendance/student_signup.html", {"form": form})
+
+
+def signup_teacher(request):
+
+    if request.method == "POST":
+        form = TeacherSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Teacher account created successfully.")
+            return redirect("login")
+    else:
+        form = TeacherSignUpForm()
+
+    return render(request, "attendance/teacher_signup.html", {"form":form})
+
+
+@login_required
+def create_qr(request):
+    if request.user.role != "teacher":
+        messages.error(request, "Only teachers can generate attendance QR.")
+        return redirect("app-dashboard")
+
+    expiry_time = timezone.now() + timedelta(minutes=5)
+    new_session = ClassSession.objects.create(
+        teacher=request.user,
+        expires_at=expiry_time
+    )
+
+    qr_url = request.build_absolute_uri(reverse('attendance:mark_attendance_by_token', args=[new_session.token]))
+    qr_img = qrcode.make(qr_url)
+
+    buffer = BytesIO()
+    qr_img.save(buffer, format="PNG")
+    qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    context = {
+        "qr_code": qr_base64,
+        "session": new_session,
+        "qr_url": qr_url,
+        "expiry": expiry_time,
+    }
+    return render(request, "attendance/qr_display.html", context)
+
+
+@login_required
+def mark_attendance(request, token):
+    try:
+        session = ClassSession.objects.get(token=token)
+    except ClassSession.DoesNotExist:
+        messages.error(request, "Invalid or expired QR code.")
+        return redirect("app-dashboard")
+
+    if not session.is_valid():
+        messages.error(request, "This session has expired.")
+        return redirect("app-dashboard")
+
+    already_marked = Attendance.objects.filter(student=request.user, session=session).exists()
+    if already_marked:
+        messages.warning(request, "You’ve already marked attendance for this session.")
+        return redirect("app-dashboard")
+
+    Attendance.objects.create(student=request.user, session=session)
+    messages.success(request, "Attendance marked successfully!")
+    return redirect("app-dashboard")
+
+
+def user_login(request):
+
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        role = request.POST["role"]
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None and user.role == role:
+            login(request, user)
+            messages.success(request, f"Welcome {user.username}")
+            return redirect("app-dashboard") 
+        
+        else:
+            messages.error(request, "Invalid credentials or role mismatch.")
+
+    return render(request, 'attendance/login.html')
+
+
+def settings(request):
+
+    return render(request, "attendance/settings.html")
+
+
+def reports(request):
+
+    return render(request, "attendance/reports.html")
