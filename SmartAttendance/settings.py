@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'smartattend.onrender.com',
     'localhost'
+    'smartattend-1q4w.onrender.com'
 ]
 
 AUTH_USER_MODEL = 'attendance.CustomUser'
