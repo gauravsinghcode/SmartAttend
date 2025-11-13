@@ -13,6 +13,7 @@ from .forms import StudentSignUpForm, TeacherSignUpForm
 from django.http import JsonResponse
 from django.urls import reverse
 import json
+from django.conf import settings
 
 
 def home(request):
@@ -145,7 +146,7 @@ def signup_teacher(request):
 @login_required
 def create_qr(request):
     if request.user.role != "teacher":
-        messages.error(request, "Only teachers can generate attendance QR.")
+        messages.error(request, "Only teachers can generate QR.")
         return redirect("app-dashboard")
 
     expiry_time = timezone.now() + timedelta(minutes=5)
@@ -155,20 +156,20 @@ def create_qr(request):
         expires_at=expiry_time
     )
 
-    qr_url = request.build_absolute_uri(
-    reverse("mark_attendance", args=[new_session.token])
-    )   
+    BASE_URL = "https://smartattend-1q4w.onrender.com"
+
+    qr_url = f"{BASE_URL}{reverse('mark_attendance', args=[new_session.token])}"
 
     qr_img = qrcode.make(qr_url)
     buffer = BytesIO()
     qr_img.save(buffer, format="PNG")
     qr_base64 = base64.b64encode(buffer.getvalue()).decode()
-    
+
     return render(request, "attendance/qr_display.html", {
-    "session": new_session,
-    "qr_url": qr_url,
-    "expiry": expiry_time,
-    "qr_code": qr_base64,
+        "session": new_session,
+        "qr_url": qr_url,
+        "expiry": expiry_time,
+        "qr_code": qr_base64,
     })
 
 
