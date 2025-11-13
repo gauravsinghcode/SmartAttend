@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'smartattend.onrender.com',
-    'localhost'
+    'localhost',
     'smartattend-1q4w.onrender.com'
 ]
 
