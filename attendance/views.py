@@ -156,20 +156,20 @@ def create_qr(request):
     )
 
     qr_url = request.build_absolute_uri(
-        reverse("mark_attendance", args=[new_session.token])
-    )
+    reverse("mark_attendance", args=[new_session.token])
+    )   
 
     qr_img = qrcode.make(qr_url)
     buffer = BytesIO()
     qr_img.save(buffer, format="PNG")
     qr_base64 = base64.b64encode(buffer.getvalue()).decode()
-
-    context = {
-        "qr_code": qr_base64,
-        "qr_url": qr_url,
-        "expiry": expiry_time,
-    }
-    return render(request, "attendance/qr_display.html", context)
+    
+    return render(request, "attendance/qr_display.html", {
+    "session": new_session,
+    "qr_url": qr_url,
+    "expiry": expiry_time,
+    "qr_code": qr_base64,
+    })
 
 
 @login_required
