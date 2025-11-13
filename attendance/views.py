@@ -20,9 +20,30 @@ def home(request):
     return render(request, "attendance/landing.html")
 
 
+@login_required
 def dashboard(request):
 
-    return render(request, "attendance/dashboard.html")
+    if request.user.role == "teacher":
+
+        sessions = ClassSession.objects.filter(teacher=request.user).order_by("-created_at")
+        for s in sessions:
+            s.count = Attendance.objects.filter(session=s).count()
+
+        return render(request, "attendance/dashboard.html", {
+            "is_teacher": True,
+            "sessions": sessions,
+        })
+
+    else: 
+        records = Attendance.objects.filter(
+            student=request.user
+        ).select_related("session").order_by("-marked_at")[:10]
+
+        return render(request, "attendance/dashboard.html", {
+            "is_teacher": False,
+            "records": records,
+        })
+
 
 
 def attendance(request):

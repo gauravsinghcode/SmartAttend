@@ -41,19 +41,14 @@ class ClassSession(models.Model):
 
 
 class Attendance(models.Model):
-    student = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        limit_choices_to={'role': 'student'},
-        related_name='attendances'
-    )
-    session = models.ForeignKey(
-        'ClassSession',
-        on_delete=models.CASCADE,
-        related_name='attendances'
-    )
-    marked_at = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=10, default='Present')
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
+    session = models.ForeignKey(ClassSession, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default='Present')
+    marked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'session')
+
 
     def __str__(self):
         return f"{self.student.username} - {self.session.token[:6]} - {self.status}"

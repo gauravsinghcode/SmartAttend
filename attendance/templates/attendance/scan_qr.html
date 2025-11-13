@@ -70,9 +70,10 @@ document.addEventListener("DOMContentLoaded", function () {
               qrbox: { width: 250, height: 250 },
             },
             (decodedText) => {
+              const token = decodedText.split("/").pop().trim();
               html5QrCode.stop();
               showStatus("Processing QR...", "text-emerald-600");
-              sendToken(decodedText);
+              sendToken(token);
             },
             (error) => {
               // optional: console.log(error)

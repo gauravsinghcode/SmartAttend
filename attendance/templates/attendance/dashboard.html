@@ -4,7 +4,7 @@
 <div class="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-white via-gray-50 to-gray-100 mt-10">
 
   <div class="text-center mb-10">
-    <h1 class="text-4xl font-medium title-font text-center text-indigo-900 font-[Nunito] font-bold"> SmartAttend Dashboard </h1>
+    <h1 class="text-4xl font-bold text-indigo-900 font-[Nunito]">SmartAttend Dashboard</h1>
     <p class="text-gray-500 mt-2">
       Welcome, {{ user.username|title }} 👋 — Manage your attendance effortlessly.
     </p>
@@ -12,101 +12,136 @@
 
   <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md shadow-xl rounded-2xl p-8 border border-gray-200/50">
     
+    <!-- TEACHER DASHBOARD -->
     {% if user.role == 'teacher' %}
-
     <h2 class="text-2xl font-semibold mb-8 text-indigo-900 font-[Nunito]">Teacher Dashboard</h2>
 
     <div class="grid md:grid-cols-2 gap-8">
 
       <div class="p-6 rounded-2xl bg-white border border-gray-200 hover:shadow-lg transition-all duration-300">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 font-[Nunito]">Generate Attendance QR</h3>
-        <p class="text-gray-500 mb-5">Create and display a temporary QR for students to mark attendance instantly.</p>
-        <a href="{% url 'create_qr' %}"><button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 focus:outline-none hover:bg-[#251f6d] rounded text-lg">Create QR Session</button></a>
+        <p class="text-gray-500 mb-5">Create a temporary QR for marking today's attendance.</p>
+
+        <a href="{% url 'create_qr' %}">
+          <button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 hover:bg-[#251f6d] rounded text-lg">
+            Create QR Session
+          </button>
+        </a>
       </div>
 
       <div class="p-6 rounded-2xl bg-white border border-gray-200 hover:shadow-lg transition-all duration-300">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 font-[Nunito]">View Attendance Reports</h3>
-        <p class="text-gray-500 mb-5">Access attendance data, statistics, and export reports.</p>
-        <a href="{% url 'login' %}"><button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 focus:outline-none hover:bg-[#251f6d] rounded text-lg">Open Reports</button></a>
+        <p class="text-gray-500 mb-5">See detailed attendance data for each session.</p>
+
+        <a href="{% url 'teacher-reports' %}">
+          <button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 hover:bg-[#251f6d] rounded text-lg">
+            Open Reports
+          </button>
+        </a>
       </div>
     </div>
 
     <div class="mt-10">
-      <h3 class="text-lg font-semibold mb-3 text-gray-700">Recent QR Sessions</h3>
+      <h3 class="text-lg font-semibold mb-3 text-gray-700 font-[Nunito]">Recent QR Sessions</h3>
+      
       {% if sessions %}
-        <div class="overflow-x-auto rounded-xl border border-gray-200">
-          <table class="min-w-full divide-y divide-gray-200 text-left">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="py-2 px-4">Session Token</th>
-                <th class="py-2 px-4">Created</th>
-                <th class="py-2 px-4">Expires</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              {% for s in sessions %}
-              <tr>
-                <td class="py-2 px-4 text-emerald-600 font-medium">{{ s.token }}</td>
-                <td class="py-2 px-4">{{ s.created_at|date:"M d, H:i" }}</td>
-                <td class="py-2 px-4">{{ s.expires_at|date:"H:i:s" }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <div class="overflow-x-auto rounded-xl border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 text-left">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4">Session</th>
+              <th class="py-2 px-4">Created</th>
+              <th class="py-2 px-4">Present</th>
+              <th class="py-2 px-4">View</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {% for s in sessions %}
+            <tr>
+              <td class="py-2 px-4 font-medium">{{ s.title|default:"Class Session" }}</td>
+              <td class="py-2 px-4">{{ s.created_at|date:"M d, H:i" }}</td>
+              <td class="py-2 px-4">{{ s.count }}</td>
+              <td class="py-2 px-4">
+                <a href="{% url 'view_session_attendance' s.id %}"
+                   class="text-indigo-600 hover:underline">Open</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% else %}
-        <p class="text-gray-500 mt-3">No active sessions found.</p>
+        <p class="text-gray-500 mt-3">No sessions created yet.</p>
       {% endif %}
     </div>
+    
+    {% endif %}
 
-    {% elif user.role == 'student' %}
+    <!-- STUDENT DASHBOARD -->
+    {% if user.role == 'student' %}
     <h2 class="text-2xl font-semibold mb-8 text-indigo-900 font-[Nunito]">Student Dashboard</h2>
 
     <div class="grid md:grid-cols-2 gap-8">
+
       <div class="p-6 rounded-2xl bg-white border border-gray-200 hover:shadow-lg transition-all duration-300">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 font-[Nunito]">Scan Attendance QR</h3>
-        <p class="text-gray-500 mb-5">Scan the live classroom QR to mark your presence instantly.</p>
-        <a href="{% url 'scan_qr_page' %}"><button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 focus:outline-none hover:bg-[#251f6d] rounded text-lg">Scan QR</button></a>
+        <p class="text-gray-500 mb-5">Scan the classroom QR to mark today's attendance.</p>
+
+        <a href="{% url 'scan_qr_page' %}">
+          <button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 hover:bg-[#251f6d] rounded text-lg">
+            Scan QR
+          </button>
+        </a>
       </div>
 
       <div class="p-6 rounded-2xl bg-white border border-gray-200 hover:shadow-lg transition-all duration-300">
         <h3 class="text-lg font-semibold text-gray-800 mb-3 font-[Nunito]">My Attendance</h3>
-        <p class="text-gray-500 mb-5">View your attendance logs and past sessions details in this tab.</p>
-        <a href="{% url 'login' %}"><button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 focus:outline-none hover:bg-[#251f6d] rounded text-lg">View Records</button></a>
+        <p class="text-gray-500 mb-5">View all your attendance history.</p>
+
+        <a href="{% url 'student-attendance' %}">
+          <button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 hover:bg-[#251f6d] rounded text-lg">
+            View Records
+          </button>
+        </a>
       </div>
+
     </div>
 
     <div class="mt-10">
       <h3 class="text-lg font-semibold mb-3 text-gray-700 font-[Nunito]">Recent Attendance</h3>
+
       {% if records %}
-        <div class="overflow-x-auto rounded-xl border border-gray-200">
-          <table class="min-w-full divide-y divide-gray-200 text-left">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="py-2 px-4">Session</th>
-                <th class="py-2 px-4">Status</th>
-                <th class="py-2 px-4">Marked At</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              {% for r in records %}
-              <tr>
-                <td class="py-2 px-4">{{ r.session.token }}</td>
-                <td class="py-2 px-4 text-emerald-600 font-medium">{{ r.status }}</td>
-                <td class="py-2 px-4">{{ r.marked_at|date:"M d, H:i" }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <div class="overflow-x-auto rounded-xl border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 text-left">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4">Session</th>
+              <th class="py-2 px-4">Status</th>
+              <th class="py-2 px-4">Marked At</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {% for r in records %}
+            <tr>
+              <td class="py-2 px-4">{{ r.session.title|default:"Class Session" }}</td>
+              <td class="py-2 px-4 text-emerald-600 font-medium">{{ r.status }}</td>
+              <td class="py-2 px-4">{{ r.marked_at|date:"M d, H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% else %}
-        <p class="text-gray-500 mt-3">No attendance records yet.</p>
+        <p class="text-gray-500 mt-3">No attendance recorded yet.</p>
       {% endif %}
     </div>
     {% endif %}
+
   </div>
 
-  <p class="text-gray-400 text-sm mt-10 mb-6">© 2025 SmartAttend. Built for smarter campuses.</p>
+  <p class="text-gray-400 text-sm mt-10 mb-6">
+    © 2025 SmartAttend. Built for smarter campuses.
+  </p>
 
 </div>
 
