@@ -62,8 +62,8 @@
               <td class="py-2 px-4">{{ s.created_at|date:"M d, H:i" }}</td>
               <td class="py-2 px-4">{{ s.count }}</td>
               <td class="py-2 px-4">
-                <a href="{% url 'view_session_attendance' s.id %}"
-                   class="text-indigo-600 hover:underline">Open</a>
+                <!-- <a href="{% url 'view_session_attendance' s.id %}" -->
+                 <a href="#" class="text-indigo-600 hover:underline">Open</a>
               </td>
             </tr>
             {% endfor %}
@@ -98,7 +98,7 @@
         <h3 class="text-lg font-semibold text-gray-800 mb-3 font-[Nunito]">My Attendance</h3>
         <p class="text-gray-500 mb-5">View all your attendance history.</p>
 
-        <a href="{% url 'student-attendance' %}">
+        <a href="#">
           <button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 hover:bg-[#251f6d] rounded text-lg">
             View Records
           </button>
