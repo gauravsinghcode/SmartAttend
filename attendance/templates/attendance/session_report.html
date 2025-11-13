@@ -1,0 +1,50 @@
+{% extends 'attendance/base.html' %}
+{% block bodyblock %}
+
+<div class="max-w-5xl mx-auto mt-10 bg-white p-8 rounded-2xl shadow-lg">
+
+  <h2 class="text-3xl font-semibold text-indigo-900 mb-6">
+    Attendance Report — Session {{ session.token|slice:":8" }}
+  </h2>
+
+  <div class="grid grid-cols-2 gap-8">
+    <div class="p-6 rounded-xl bg-gray-50 border">
+      <h3 class="text-xl font-semibold mb-3 text-emerald-700">Present</h3>
+      <ul class="list-disc ml-4 text-gray-700">
+        {% for s in present_students %}
+          <li>{{ s.username }}</li>
+        {% empty %}
+          <li>No students marked present.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="p-6 rounded-xl bg-gray-50 border">
+      <h3 class="text-xl font-semibold mb-3 text-red-700">Absent</h3>
+      <ul class="list-disc ml-4 text-gray-700">
+        {% for s in absent_students %}
+          <li>{{ s.username }}</li>
+        {% empty %}
+          <li>No absent students.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-8 text-center">
+    <p class="text-gray-700 text-lg">
+      Total Students: <strong>{{ total_students }}</strong> |
+      Present: <strong>{{ attendance_count }}</strong> |
+      Absent: <strong>{{ total_students|add:"- attendance_count" }}</strong>
+    </p>
+  </div>
+
+  <div class="mt-10 text-center">
+    <a href="{% url 'app-dashboard' %}" class="px-5 py-2 bg-indigo-600 text-white rounded-lg">
+      Back to Dashboard
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

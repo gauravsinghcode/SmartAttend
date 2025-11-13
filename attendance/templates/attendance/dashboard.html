@@ -13,7 +13,7 @@
   <div class="w-full max-w-5xl bg-white/70 backdrop-blur-md shadow-xl rounded-2xl p-8 border border-gray-200/50">
     
     <!-- TEACHER DASHBOARD -->
-    {% if user.role == 'teacher' %}
+    {% if user.is_authenticated and user.role == 'teacher' %}
     <h2 class="text-2xl font-semibold mb-8 text-indigo-900 font-[Nunito]">Teacher Dashboard</h2>
 
     <div class="grid md:grid-cols-2 gap-8">
@@ -33,7 +33,7 @@
         <h3 class="text-lg font-semibold text-gray-800 mb-3 font-[Nunito]">View Attendance Reports</h3>
         <p class="text-gray-500 mb-5">See detailed attendance data for each session.</p>
 
-        <a href="{% url 'teacher-reports' %}">
+        <a href="#">
           <button class="inline-flex text-white bg-[#312c85] border-0 py-2 px-6 hover:bg-[#251f6d] rounded text-lg">
             Open Reports
           </button>
@@ -62,7 +62,7 @@
               <td class="py-2 px-4">{{ s.created_at|date:"M d, H:i" }}</td>
               <td class="py-2 px-4">{{ s.count }}</td>
               <td class="py-2 px-4">
-                 <a href="#" class="text-indigo-600 hover:underline">Open</a>
+                 <a href="{% url 'session-report' s.id %}" class="text-indigo-600 hover:underline">Open</a>
               </td>
             </tr>
             {% endfor %}
@@ -73,11 +73,48 @@
         <p class="text-gray-500 mt-3">No sessions created yet.</p>
       {% endif %}
     </div>
+
+    {% if user.role == 'teacher' %}
+
+      <canvas id="sessionChart" class="mt-10 w-full"></canvas>
+
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+      <script>
+      const labels = JSON.parse('{{ session_labels|safe }}');
+      const counts = JSON.parse('{{ session_counts|safe }}');
+
+      if (labels.length > 0) {
+        const ctx = document.getElementById('sessionChart');
+
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Attendance Count',
+              data: counts,
+              borderWidth: 1,
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)'
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      }
+      </script>
+
+    {% endif %}
+
     
     {% endif %}
 
     <!-- STUDENT DASHBOARD -->
-    {% if user.role == 'student' %}
+    {% if user.is_authenticated and user.role == 'student' %}
     <h2 class="text-2xl font-semibold mb-8 text-indigo-900 font-[Nunito]">Student Dashboard</h2>
 
     <div class="grid md:grid-cols-2 gap-8">

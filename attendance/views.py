@@ -4,16 +4,16 @@ import base64
 from django.utils import timezone
 from datetime import timedelta
 from .models import ClassSession, Attendance
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import StudentSignUpForm, TeacherSignUpForm
 from django.http import JsonResponse
-from django.urls import reverse
+from .decorators import role_required
+from django.contrib.auth import get_user_model
 import json
-from django.conf import settings
 
 
 def home(request):
@@ -24,15 +24,31 @@ def home(request):
 @login_required
 def dashboard(request):
 
+    sessions = None
+    records = None
+    session_labels_json = "[]"
+    session_counts_json = "[]"
+
     if request.user.role == "teacher":
 
         sessions = ClassSession.objects.filter(teacher=request.user).order_by("-created_at")
+
+        session_labels = [f"Session {i+1}" for i in range(len(sessions))]
+        session_counts = [Attendance.objects.filter(session=s).count() for s in sessions]
+
+        # Convert Python lists → JSON strings
+        session_labels_json = json.dumps(session_labels)
+        session_counts_json = json.dumps(session_counts)
+
         for s in sessions:
             s.count = Attendance.objects.filter(session=s).count()
 
         return render(request, "attendance/dashboard.html", {
             "is_teacher": True,
             "sessions": sessions,
+            "records": records,
+            "session_labels": session_labels_json,
+            "session_counts": session_counts_json,
         })
 
     else: 
@@ -53,6 +69,7 @@ def attendance(request):
 
 
 @login_required
+@role_required(['student'])
 def scan_qr_page(request):
     if request.user.role != 'student':
         return redirect('app-dashboard')
@@ -60,6 +77,7 @@ def scan_qr_page(request):
 
 
 @login_required
+@role_required(['student'])
 def mark_attendance_ajax(request):
 
     if request.method != 'POST':
@@ -152,6 +170,7 @@ def signup_teacher(request):
 
 
 @login_required
+@role_required(['teacher'])
 def create_qr(request):
     if request.user.role != "teacher":
         messages.error(request, "Only teachers can generate attendance QR.")
@@ -182,6 +201,7 @@ def create_qr(request):
 
 
 @login_required
+@role_required(['teacher'])
 def teacher_reports(request):
     if request.user.role != "teacher":
         return redirect("dashboard")
@@ -206,8 +226,8 @@ def teacher_reports(request):
     })
 
 
-
 @login_required
+@role_required(['student'])
 def mark_attendance(request, token):
     try:
         session = ClassSession.objects.get(token=token)
@@ -249,14 +269,29 @@ def user_login(request):
     return render(request, 'attendance/login.html')
 
 
-def settings(request):
+@login_required
+@role_required(['teacher'])
+def session_report(request, session_id):
 
-    return render(request, "attendance/settings.html")
+    User = get_user_model()
 
+    session = ClassSession.objects.get(id=session_id)
+    
+    students = User.objects.filter(role='student')
+    attendance = Attendance.objects.filter(session=session)
 
-def reports(request):
+    present_ids = attendance.values_list('student_id', flat=True)
+    present_students = students.filter(id__in=present_ids)
+    absent_students = students.exclude(id__in=present_ids)
 
-    return render(request, "attendance/reports.html")
+    return render(request, "attendance/session_report.html", {
+        "session": session,
+        "present_students": present_students,
+        "absent_students": absent_students,
+        "attendance_count": present_students.count(),
+        "total_students": students.count(),
+    })
+
 
 
 def logout_user(request):

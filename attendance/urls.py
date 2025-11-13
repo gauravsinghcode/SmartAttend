@@ -15,4 +15,5 @@ urlpatterns = [
     path('ajax/mark/', views.mark_attendance_ajax, name='mark_attendance_ajax'),
     path('logout/', views.logout_user, name='logout'),
     path("teacher/reports/", views.teacher_reports, name="teacher-reports"),
+    path('reports/session/<int:session_id>/', views.session_report, name="session-report"),
 ]
