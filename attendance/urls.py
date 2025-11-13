@@ -14,4 +14,5 @@ urlpatterns = [
     path('scan/', views.scan_qr_page, name='scan_qr_page'),
     path('ajax/mark/', views.mark_attendance_ajax, name='mark_attendance_ajax'),
     path('logout/', views.logout_user, name='logout'),
+    path("teacher/reports/", views.teacher_reports, name="teacher-reports"),
 ]

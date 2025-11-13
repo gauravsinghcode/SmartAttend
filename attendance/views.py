@@ -173,6 +173,32 @@ def create_qr(request):
 
 
 @login_required
+def teacher_reports(request):
+    if request.user.role != "teacher":
+        return redirect("dashboard")
+
+    sessions = ClassSession.objects.filter(teacher=request.user).order_by("-created_at")
+
+    data = []
+    for s in sessions:
+        count = Attendance.objects.filter(session=s).count()
+        data.append({
+            "title": s.title or f"Session {s.id}",
+            "count": count,
+            "created": s.created_at,
+        })
+
+    total_attendance = sum(d["count"] for d in data)
+
+    return render(request, "attendance/teacher_reports.html", {
+        "session_data": data,
+        "total_sessions": sessions.count(),
+        "total_attendance": total_attendance,
+    })
+
+
+
+@login_required
 def mark_attendance(request, token):
     try:
         session = ClassSession.objects.get(token=token)
