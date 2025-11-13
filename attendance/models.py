@@ -21,7 +21,7 @@ def generate_unique_token():
     return str(uuid.uuid4())    
 
 class ClassSession(models.Model):
-    token = models.CharField(max_length=64, unique=True, default=generate_unique_token)
+    token = models.CharField(max_length=64, unique=True, default=generate_unique_token, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     used_by = models.ManyToManyField('CustomUser', blank=True)

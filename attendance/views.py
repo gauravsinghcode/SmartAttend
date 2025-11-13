@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from .forms import StudentSignUpForm, TeacherSignUpForm
 from django.http import JsonResponse
 from django.urls import reverse
+import json
 
 
 def home(request):
@@ -38,14 +39,18 @@ def scan_qr_page(request):
 
 @login_required
 def mark_attendance_ajax(request):
-
-    if request.method != 'POST':
+    if request.method != "POST":
         return JsonResponse({'ok': False, 'msg': 'POST required'}, status=405)
 
     if request.user.role != 'student':
         return JsonResponse({'ok': False, 'msg': 'Only students can mark attendance'}, status=403)
 
-    token = request.POST.get('token') or request.POST.get('data')
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+    except:
+        body = {}
+
+    token = body.get("token") or body.get("data") or request.POST.get("token")
     if not token:
         return JsonResponse({'ok': False, 'msg': 'No token provided'}, status=400)
 
@@ -123,21 +128,23 @@ def create_qr(request):
         return redirect("app-dashboard")
 
     expiry_time = timezone.now() + timedelta(minutes=5)
+
     new_session = ClassSession.objects.create(
         teacher=request.user,
         expires_at=expiry_time
     )
 
-    qr_url = request.build_absolute_uri(reverse('attendance:mark_attendance_by_token', args=[new_session.token]))
-    qr_img = qrcode.make(qr_url)
+    qr_url = request.build_absolute_uri(
+        reverse("mark_attendance", args=[new_session.token])
+    )
 
+    qr_img = qrcode.make(qr_url)
     buffer = BytesIO()
     qr_img.save(buffer, format="PNG")
     qr_base64 = base64.b64encode(buffer.getvalue()).decode()
 
     context = {
         "qr_code": qr_base64,
-        "session": new_session,
         "qr_url": qr_url,
         "expiry": expiry_time,
     }
@@ -194,3 +201,8 @@ def settings(request):
 def reports(request):
 
     return render(request, "attendance/reports.html")
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login')
