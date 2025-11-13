@@ -61,39 +61,47 @@ def scan_qr_page(request):
 
 @login_required
 def mark_attendance_ajax(request):
-    if request.method != "POST":
+
+    if request.method != 'POST':
         return JsonResponse({'ok': False, 'msg': 'POST required'}, status=405)
 
     if request.user.role != 'student':
         return JsonResponse({'ok': False, 'msg': 'Only students can mark attendance'}, status=403)
 
-    try:
-        body = json.loads(request.body.decode('utf-8'))
-    except:
-        body = {}
-
-    token = body.get("token") or body.get("data") or request.POST.get("token")
+    token = request.POST.get('token') or request.POST.get('data')
     if not token:
         return JsonResponse({'ok': False, 'msg': 'No token provided'}, status=400)
 
-    if '/' in token:
-        token = token.rstrip('/').split('/')[-1]
+    token = token.strip()
+
+    # Extract token from URL if present
+    if "/" in token:
+        token = token.rstrip("/").split("/")[-1]
+
+    # UUID minimum check (36 chars)
+    if len(token) < 20:
+        return JsonResponse({'ok': False, 'msg': 'Invalid QR data'}, status=400)
 
     try:
         session = ClassSession.objects.get(token=token)
     except ClassSession.DoesNotExist:
-        return JsonResponse({'ok': False, 'msg': 'Invalid or unknown QR token'}, status=400)
+        return JsonResponse({'ok': False, 'msg': 'Invalid or expired QR token'}, status=400)
 
     if not session.is_valid():
         return JsonResponse({'ok': False, 'msg': 'This session has expired'}, status=400)
 
-    already = Attendance.objects.filter(student=request.user, session=session).exists()
-    if already:
-        return JsonResponse({'ok': False, 'msg': 'You have already marked attendance for this session'}, status=200)
+    if Attendance.objects.filter(student=request.user, session=session).exists():
+        return JsonResponse({'ok': False, 'msg': 'You already marked attendance for this session'}, status=200)
 
-    Attendance.objects.create(student=request.user, session=session, status='Present')
+    Attendance.objects.create(
+        student=request.user,
+        session=session,
+        status="Present"
+    )
 
-    return JsonResponse({'ok': True, 'msg': 'Attendance marked successfully'})
+    return JsonResponse({'ok': True, 'msg': 'Attendance marked successfully!'})
+
+
 
 
 def landing(request):
@@ -146,28 +154,28 @@ def signup_teacher(request):
 @login_required
 def create_qr(request):
     if request.user.role != "teacher":
-        messages.error(request, "Only teachers can generate QR.")
+        messages.error(request, "Only teachers can generate attendance QR.")
         return redirect("app-dashboard")
 
     expiry_time = timezone.now() + timedelta(minutes=5)
 
+    # Create session
     new_session = ClassSession.objects.create(
         teacher=request.user,
         expires_at=expiry_time
     )
 
-    BASE_URL = "https://smartattend-1q4w.onrender.com"
+    # QR CODE SHOULD ENCODE ONLY THE TOKEN
+    qr_data = new_session.token
 
-    qr_url = f"{BASE_URL}{reverse('mark_attendance', args=[new_session.token])}"
-
-    qr_img = qrcode.make(qr_url)
+    # Generate QR
+    qr_img = qrcode.make(qr_data)
     buffer = BytesIO()
     qr_img.save(buffer, format="PNG")
     qr_base64 = base64.b64encode(buffer.getvalue()).decode()
 
     return render(request, "attendance/qr_display.html", {
         "session": new_session,
-        "qr_url": qr_url,
         "expiry": expiry_time,
         "qr_code": qr_base64,
     })
